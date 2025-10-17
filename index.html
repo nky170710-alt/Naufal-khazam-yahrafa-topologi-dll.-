@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Topologi Jaringan — Materi Lengkap</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg1:#e9fff7; /* putih kehijauan lembut */
+    --bg2:#d7f7ff; /* biru muda */
+    --accent1:#00c9a7; /* hijau cyan */
+    --accent2:#00a3ff; /* biru */
+    --text:#003344;
+    --card:#ffffff;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;font-family:'Poppins',sans-serif;background:linear-gradient(135deg,var(--bg2),var(--bg1));color:var(--text);-webkit-font-smoothing:antialiased}
+  /* NAVBAR (scrollable) */
+  .navbar{
+    position:fixed;top:0;left:0;right:0;height:68px;display:flex;align-items:center;z-index:60;
+    background:rgba(255,255,255,0.85);
+    border-bottom:1px solid rgba(0,0,0,0.06);
+    backdrop-filter: blur(6px);
+  }
+  .nav-inner{display:flex;align-items:center;gap:18px;overflow:auto;padding:0 18px;height:100%;white-space:nowrap}
+  .nav-inner::-webkit-scrollbar{height:8px}
+  .nav-inner::-webkit-scrollbar-thumb{background:linear-gradient(90deg,var(--accent2),var(--accent1));border-radius:8px}
+  .brand{display:flex;align-items:center;gap:12px;margin-right:8px}
+  .logo{width:46px;height:46px;border-radius:10px;background:linear-gradient(135deg,var(--accent1),var(--accent2));display:flex;align-items:center;justify-content:center;color:#002022;font-weight:700;box-shadow:0 6px 20px rgba(0,160,200,0.12)}
+  .site{font-weight:700;color:var(--text)}
+  .nav-item{display:inline-block;padding:10px 14px;border-radius:10px;color:var(--accent2);font-weight:600;cursor:pointer;transition:all .18s}
+  .nav-item:hover{background:rgba(0,0,0,0.03);transform:translateY(-2px);color:var(--accent1)}
+  .nav-right{margin-left:auto;padding-right:18px;color:#17606a;font-weight:600}
+
+  /* LAYOUT */
+  .container{padding-top:80px;width:100%;height:calc(100vh - 80px);display:flex;flex-direction:column;align-items:stretch}
+  .viewport{flex:1;margin:18px;border-radius:14px;overflow:hidden;display:block;position:relative;border:1px solid rgba(0,0,0,0.03);background:linear-gradient(180deg,rgba(255,255,255,0.95),rgba(250,255,252,0.95))}
+  /* Materi slider */
+  .pages{display:flex;height:100%;transition:transform .52s cubic-bezier(.22,.9,.3,1);will-change:transform}
+  .page{min-width:100%;padding:44px 64px;overflow:auto}
+  .card{background:var(--card);border-radius:12px;padding:18px;margin:14px 0;box-shadow:0 8px 30px rgba(0,160,160,0.06)}
+  h1{margin:0 0 10px;color:var(--accent2)}
+  h2{color:var(--accent1);margin:8px 0}
+  p{margin:8px 0;line-height:1.7;color:#08303a}
+  ul{margin-left:18px}
+
+  /* Controls for Materi */
+  .controls{display:flex;align-items:center;justify-content:space-between;padding:12px 24px;background:linear-gradient(180deg,transparent,rgba(0,0,0,0.02));border-top:1px solid rgba(0,0,0,0.02)}
+  .btn{background:linear-gradient(90deg,var(--accent1),var(--accent2));border:none;color:#002022;padding:10px 14px;border-radius:10px;font-weight:700;cursor:pointer;box-shadow:0 8px 28px rgba(0,160,200,0.08)}
+  .btn:active{transform:translateY(1px)}
+  .page-ind{color:#0a5561;font-weight:700}
+
+  /* Non-slider sections (kesimpulan/pembuat/desain pembelajaran) */
+  .single{display:none;padding:48px;overflow:auto;height:100%}
+  .single.active{display:block}
+
+  .hint{position:absolute;right:18px;bottom:18px;color:#0a5561;font-size:13px}
+
+  /* responsive */
+  @media (max-width:900px){.page{padding:20px}.nav-item{padding:8px 10px}.logo{width:40px;height:40px}}
+</style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-inner" id="navInner">
+      <div class="brand">
+        <div class="logo">TJ</div>
+        <div class="site">Topologi Jaringan</div>
+      </div>
+      <!-- Menu items (scrollable) -->
+      <div class="nav-item" onclick="openSection('materi')">📘 Materi Topologi</div>
+      <div class="nav-item" onclick="openSection('desain')">🛠️ Desain Pembelajaran</div>
+      <div class="nav-item" onclick="openSection('kesimpulan')">🧩 Kesimpulan</div>
+      <div class="nav-item" onclick="openSection('pembuat')">👨‍💻 Pembuat</div>
+      <!-- Extra: quick jump to specific topology categories -->
+      <div class="nav-item" onclick="openSection('materi',3)">🔎 Lihat Topologi Mesh</div>
+      <div class="nav-item" onclick="openSection('materi',6)">🔎 Lihat Topologi Wireless</div>
+    </div>
+    <div class="nav-right">Naufal Khazam Yahrafa</div>
+  </nav>
+
+  <div class="container">
+    <div class="viewport" id="viewport">
+      <!-- Materi (slider): many pages -->
+      <div id="materiContainer" style="height:100%;display:block">
+        <div class="pages" id="pages">
+          <!-- Page 1: Intro -->
+          <section class="page" aria-label="Intro">
+            <h1>Pengenalan Topologi Jaringan</h1>
+            <div class="card">
+              <p>Topologi jaringan adalah susunan fisik atau logis perangkat dalam suatu jaringan. Mempelajari topologi membantu perancang jaringan menentukan strategi koneksi, redundansi, keamanan, dan estimasi biaya.</p>
+              <p>Pada materi ini: pembahasan mendalam berbagai topologi (Bus, Star, Ring, Mesh, Tree, Hybrid, Peer-to-Peer, Point-to-Point, Point-to-Multipoint, Daisy Chain, Cellular, Wireless, Extended Star, Partial Mesh, Hierarchical, VLAN & Virtual Topologies, dan lain-lain).</p>
+            </div>
+            <div class="card">
+              <h2>Tujuan Pembelajaran</h2>
+              <ul>
+                <li>Memahami karakteristik tiap topologi</li>
+                <li>Membandingkan kelebihan & kekurangan</li>
+                <li>Menentukan topologi yang sesuai kebutuhan</li>
+                <li>Mengenal teknologi kabel (UTP, Coaxial, Fiber) & nirkabel</li>
+              </ul>
+            </div>
+          </section>
+
+          <!-- Page 2: Bus -->
+          <section class="page" aria-label="Bus">
+            <h1>Topologi Bus</h1>
+            <div class="card">
+              <p>Topologi Bus memakai satu kabel utama (backbone). Semua perangkat terhubung ke kabel tersebut; sinyal yang dilewatkan dapat diterima oleh semua node, namun hanya node tujuan yang memprosesnya.</p>
+              <h2>Rincian & praktik</h2>
+              <ul>
+                <li>Umumnya menggunakan terminator di kedua ujung kabel untuk mencegah pantulan.</li>
+                <li>Cocok untuk jaringan kecil/eksperimental; tidak ideal untuk jaringan modern dengan traffic tinggi.</li>
+              </ul>
+              <h2>Kapan dipakai?</h2>
+              <p>Paling sesuai untuk lab kecil atau setup sementara.</p>
+            </div>
+          </section>
+
+          <!-- Page 3: Star -->
+          <section class="page" aria-label="Star">
+            <h1>Topologi Star</h1>
+            <div class="card">
+              <p>Setiap node terhubung ke perangkat pusat (hub/switch). Switch managed memberikan kontrol VLAN dan QoS, sedangkan hub sederhana mengirim broadcast ke semua port.</p>
+              <h2>Rekomendasi Implementasi</h2>
+              <p>Gunakan switch berkapasitas port lebih besar dan uplink gigabit untuk skalabilitas. Redundansi: DOUBLe uplink ke core switch untuk fault tolerance.</p>
+            </div>
+          </section>
+
+          <!-- Page 4: Ring -->
+          <section class="page" aria-label="Ring">
+            <h1>Topologi Ring</h1>
+            <div class="card">
+              <p>Node tersusun melingkar; data bergeser dari satu node ke node berikutnya. Token passing adalah mekanisme untuk mengendalikan akses transmisi sehingga collision bisa diminimalkan.</p>
+              <h2>Keandalan</h2>
+              <p>Versi dual-ring menyediakan jalur backup jika satu sisi putus.</p>
+            </div>
+          </section>
+
+          <!-- Page 5: Mesh -->
+          <section class="page" aria-label="Mesh">
+            <h1>Topologi Mesh (Full & Partial)</h1>
+            <div class="card">
+              <p>Mesh penuh: setiap node terhubung langsung ke semua node lain — memberikan redundansi maksimal. Partial mesh: hanya node utama (gateway/core) yang saling terhubung untuk menekan biaya.</p>
+              <h2>Penggunaan</h2>
+              <p>Sering dipakai pada backbone ISP, pusat data, infrastruktur kritikal.</p>
+            </div>
+          </section>
+
+          <!-- Page 6: Tree -->
+          <section class="page" aria-label="Tree">
+            <h1>Topologi Tree</h1>
+            <div class="card">
+              <p>Hierarki gabungan star dan bus—cocok untuk organisasi besar dengan cabang & sub-departemen.</p>
+              <h2>Tips Desain</h2>
+              <ul><li>Rencanakan kapasitas uplink antar tingkat; gunakan link aggregate/port-channel jika diperlukan.</li></ul>
+            </div>
+          </section>
+
+          <!-- Page 7: Hybrid -->
+          <section class="page" aria-label="Hybrid">
+            <h1>Topologi Hybrid</h1>
+            <div class="card">
+              <p>Kombinasi topologi sesuai kebutuhan. Misal: star untuk LAN, mesh untuk backbone antar gedung.</p>
+              <h2>Pertimbangan</h2>
+              <p>Dokumentasi & monitoring lebih penting karena kompleksitas tinggi.</p>
+            </div>
+          </section>
+
+          <!-- Page 8: Peer-to-Peer -->
+          <section class="page" aria-label="P2P">
+            <h1>Peer-to-Peer (P2P)</h1>
+            <div class="card">
+              <p>Desentralisasi—setiap node juga bertindak sebagai server. Cocok untuk kolaborasi kecil, tetapi kontrol & keamanan lebih menantang.</p>
+            </div>
+          </section>
+
+          <!-- Page 9: Point-to-Point & Point-to-Multipoint -->
+          <section class="page" aria-label="PtP">
+            <h1>Point-to-Point & Point-to-Multipoint</h1>
+            <div class="card">
+              <p>PtP: link langsung antar dua node (leased line, fiber link). PtMP: satu node utama melayani banyak node (mis. wireless AP ke klien).</p>
+              <h2>Contoh</h2>
+              <p>PtP untuk koneksi kantor-cabang; PtMP untuk distribusi wifi publik atau microwave link ISP.</p>
+            </div>
+          </section>
+
+          <!-- Page 10: Daisy Chain -->
+          <section class="page" aria-label="Daisy">
+            <h1>Daisy Chain</h1>
+            <div class="card">
+              <p>Node tersusun berantai. Simpel tapi rentan; outage di tengah rantai memutus koneksi downstream.</p>
+            </div>
+          </section>
+
+          <!-- Page 11: Cellular -->
+          <section class="page" aria-label="Cellular">
+            <h1>Topologi Cellular</h1>
+            <div class="card">
+              <p>Digunakan operator seluler: area dibagi sel, tiap sel dilayani base station. Handover & frequency reuse penting dalam desain.</p>
+            </div>
+          </section>
+
+          <!-- Page 12: Wireless / WLAN / Mesh Wi-Fi -->
+          <section class="page" aria-label="Wireless">
+            <h1>Wireless (WLAN & Wifi Mesh)</h1>
+            <div class="card">
+              <p>WLAN biasanya infrastruktur (AP + controller) atau mesh (AP saling terhubung). Site survey & channel plan sangat penting.</p>
+            </div>
+          </section>
+
+          <!-- Page 13: Hierarchical / 3-tier -->
+          <section class="page" aria-label="Hierarchical">
+            <h1>Hierarchical / 3-tier</h1>
+            <div class="card">
+              <p>Access → Distribution → Core. Memudahkan policy, QoS, dan segmentasi jaringan.</p>
+            </div>
+          </section>
+
+          <!-- Page 14: Extended Star -->
+          <section class="page" aria-label="ExtendedStar">
+            <h1>Extended Star</h1>
+            <div class="card">
+              <p>Multiple star clusters dihubungkan melalui backbone. Cocok untuk gedung bertingkat / kampus.</p>
+            </div>
+          </section>
+
+          <!-- Page 15: Partial Mesh (detailed) -->
+          <section class="page" aria-label="PartialMesh">
+            <h1>Partial Mesh</h1>
+            <div class="card">
+              <p>Hubungkan node kritikal (core, gateway, data center) secara mesh; edge nodes ke core. Efektif biaya & andal.</p>
+            </div>
+          </section>
+
+          <!-- Page 16: Virtual Topologies (VLAN, SDN concepts) -->
+          <section class="page" aria-label="Virtual">
+            <h1>Virtual Topologies (VLAN / SDN)</h1>
+            <div class="card">
+              <p>Topologi logis: VLAN memisahkan domain broadcast, SDN memisahkan control plane dan data plane—memungkinkan topologi virtual yang fleksibel.</p>
+              <h2>Keuntungan</h2>
+              <ul><li>Fleksibilitas, segmentasi keamanan, manajemen terpusat.</li></ul>
+            </div>
+          </section>
+
+          <!-- Page 17: Deployment & Best Practices -->
+          <section class="page" aria-label="Deployment">
+            <h1>Deployment & Best Practices</h1>
+            <div class="card">
+              <p>Rencanakan kabel, power, rack, cooling, monitoring (SNMP/Telemetry), dan backup link. Dokumen topologi & IP plan (CIDR/VLSM) wajib ada.</p>
+            </div>
+          </section>
+
+          <!-- Page 18: Examples & Case Studies -->
+          <section class="page" aria-label="Examples">
+            <h1>Contoh Implementasi & Studi Kasus</h1>
+            <div class="card">
+              <p>Studi: kantor 200 user, pilih extended star + partial mesh backbone; kampus: tree dengan backbone fiber; ISP: core mesh penuh antar POP.</p>
+            </div>
+          </section>
+
+          <!-- Page 19: Advanced (redundancy, MPLS, BGP) -->
+          <section class="page" aria-label="Advanced">
+            <h1>Advanced: Redundancy & Routing</h1>
+            <div class="card">
+              <p>Pemilihan routing (OSPF/BGP/MPLS) dan protokol agregasi (LACP), peran NAT/Firewall & DMZ, serta strategi failover (VRRP, HSRP).</p>
+            </div>
+          </section>
+
+          <!-- Page 20: Tools & Resources -->
+          <section class="page" aria-label="Tools">
+            <h1>Tools & Resources</h1>
+            <div class="card">
+              <p>Rekomendasi: Wireshark, Packet Tracer, GNS3, NetBox untuk dokumentasi, serta site survey tools untuk wifi.</p>
+            </div>
+          </section>
+        </div>
+        <div class="hint">Geser ⇄ atau pakai panah keyboard</div>
+      </div>
+
+      <!-- Desain Pembelajaran (only shown when selected) -->
+      <div id="desainContainer" class="single">
+        <h1>Desain Pembelajaran — Jaringan & Topologi</h1>
+        <div class="card">
+          <p><strong>Capaian Pembelajaran (CP):</strong> Menerapkan perencanaan topologi, arsitektur jaringan sesuai kebutuhan serta pengalamatan jaringan (subnetting, CIDR, VLSM).</p>
+          <p><strong>Kompetensi:</strong> Siswa mampu merancang topologi, melakukan perhitungan subnetting (CIDR & VLSM), memilih media kabel (UTP, Coaxial, Fiber) dan teknologi nirkabel serta menguji instalasi dasar.</p>
+          <h2 class="section-title">Materi Utama</h2>
+          <ul>
+            <li>Konsep topologi & pemilihan topologi</li>
+            <li>Subnetting: binary, CIDR, VLSM</li>
+            <li>Teknologi kabel: UTP (Cat5/5e/6), Coaxial, Fiber Optic</li>
+            <li>Teknologi nirkabel: Wi-Fi modes, site survey, channel planning</li>
+            <li>Perancangan IP plan & addressing</li>
+            <li>Keamanan dasar & manajemen jaringan</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h2 class="section-title">Subnetting singkat (CIDR & VLSM)</h2>
+          <p>CIDR (Classless Inter-Domain Routing) memungkinkan pemakaian notasi prefix (mis. /24) untuk fleksibilitas alokasi IP. VLSM (Variable Length Subnet Mask) memungkinkan subdivisi jaringan menjadi subnetwork dengan ukuran berbeda sesuai kebutuhan.</p>
+          <p><strong>Contoh ringkas:</strong> Dari 192.168.0.0/24 dapat dibuat subnet /26 untuk subnetwork kecil (masing-masing menampung 62 host).</p>
+        </div>
+
+        <div class="card">
+          <h2 class="section-title">Teknologi Kabel</h2>
+          <ul>
+            <li><strong>UTP (Twisted Pair):</strong> Cat5e/Cat6 untuk LAN. Mudah instalasi, ekonomis.</li>
+            <li><strong>Coaxial:</strong> Dipakai di beberapa legacy network / CCTV.</li>
+            <li><strong>Fiber Optic:</strong> Untuk backbone & jarak jauh; sangat tinggi bandwidth & tahan gangguan elektromagnetik.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h2 class="section-title">Rencana Pembelajaran Saran</h2>
+          <ul>
+            <li>Teori: pengenalan topologi & IP addressing</li>
+            <li>Praktikum: instalasi kabel UTP, konfigurasi switch dasar</li>
+            <li>Latihan: perhitungan subnetting CIDR & VLSM</li>
+            <li>Proyek akhir: desain topologi & implementasi mini-LAN</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Kesimpulan (only shown when selected) -->
+      <div id="kesimpulanContainer" class="single">
+        <h1>Kesimpulan</h1>
+        <div class="card">
+          <p>Pemilihan topologi harus mempertimbangkan kebutuhan spesifik: ukuran jaringan, kebutuhan redundansi, anggaran, dan kemudahan pengelolaan. Untuk infrastruktur mission-critical, pilih arsitektur dengan redundancy (mesh/partial mesh/hybrid). Untuk skala SME, star/extended star biasanya cukup.</p>
+          <p style="text-align:center;margin-top:18px;color:var(--accent2);font-weight:700">Dibuat oleh</p>
+          <h2 style="text-align:center;color:var(--accent1)">Naufal Khazam Yahrafa</h2>
+        </div>
+      </div>
+
+      <!-- Pembuat (only shown when selected) -->
+      <div id="pembuatContainer" class="single">
+        <div style="display:flex;align-items:center;justify-content:center;height:100%;flex-direction:column">
+          <h1>👨‍💻 Pembuat</h1>
+          <h2 style="color:var(--accent1)">Naufal Khazam Yahrafa</h2>
+          <p style="max-width:760px;text-align:center">Materi ini disusun lengkap untuk keperluan pembelajaran topologi jaringan: teori, praktik instalasi kabel & nirkabel, subnetting (CIDR & VLSM), contoh implementasi, dan studi kasus.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls (visible only when Materi active) -->
+    <div class="controls" id="materiControls">
+      <button class="btn" id="prevBtn">⬅ Sebelumnya</button>
+      <div class="page-ind" id="pageIndex">Halaman 1 / 20</div>
+      <button class="btn" id="nextBtn">Berikutnya ➡</button>
+    </div>
+  </div>
+
+<script>
+(function(){
+  // Elements
+  const pages = document.getElementById('pages');
+  const pageEls = document.querySelectorAll('.page');
+  const total = pageEls.length;
+  const pageIndexEl = document.getElementById('pageIndex');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+
+  const materiContainer = document.getElementById('materiContainer');
+  const desainContainer = document.getElementById('desainContainer');
+  const kesimpulanContainer = document.getElementById('kesimpulanContainer');
+  const pembuatContainer = document.getElementById('pembuatContainer');
+  const materiControls = document.getElementById('materiControls');
+
+  let idx = 0;
+  function updateIndex(){ pageIndexEl.textContent = `Halaman ${idx+1} / ${total}` }
+  function showMateri(i){
+    if(i < 0) i = 0;
+    if(i >= total) i = total - 1;
+    idx = i;
+    pages.style.transform = `translateX(-${i * 100}%)`;
+    updateIndex();
+  }
+
+  // Open section: only show the requested container
+  window.openSection = function(name, gotoIndex){
+    // hide all
+    materiContainer.style.display = 'none';
+    desainContainer.style.display = 'none';
+    kesimpulanContainer.style.display = 'none';
+    pembuatContainer.style.display = 'none';
+    // show selected
+    if(name === 'materi'){
+      materiContainer.style.display = 'block';
+      materiControls.style.display = 'flex';
+      showMateri(gotoIndex ? gotoIndex : 0);
+    } else if(name === 'desain'){
+      desainContainer.style.display = 'block';
+      materiControls.style.display = 'none';
+    } else if(name === 'kesimpulan'){
+      kesimpulanContainer.style.display = 'block';
+      materiControls.style.display = 'none';
+    } else if(name === 'pembuat'){
+      pembuatContainer.style.display = 'block';
+      materiControls.style.display = 'none';
+    }
+  };
+
+  // Initial open Materi
+  openSection('materi');
+
+  // Buttons
+  prevBtn.addEventListener('click', ()=> showMateri(idx-1));
+  nextBtn.addEventListener('click', ()=> showMateri(idx+1));
+
+  // Swipe handling inside pages
+  let startX = 0;
+  pages.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, {passive:true});
+  pages.addEventListener('touchend', e => {
+    const endX = e.changedTouches[0].clientX;
+    if(endX - startX > 60) showMateri(idx-1);
+    else if(startX - endX > 60) showMateri(idx+1);
+  }, {passive:true});
+
+  // Keyboard navigation (only when materi visible)
+  window.addEventListener('keydown', function(e){
+    if(materiContainer.style.display === 'block'){
+      if(e.key === 'ArrowRight') showMateri(idx+1);
+      if(e.key === 'ArrowLeft') showMateri(idx-1);
+    }
+    // Quick keys: M, D, K, P
+    if(e.key.toLowerCase() === 'm') openSection('materi');
+    if(e.key.toLowerCase() === 'd') openSection('desain');
+    if(e.key.toLowerCase() === 'k') openSection('kesimpulan');
+    if(e.key.toLowerCase() === 'p') openSection('pembuat');
+  });
+
+  // Responsive transition hack
+  window.addEventListener('resize', ()=> {
+    pages.style.transition = 'none';
+    setTimeout(()=> pages.style.transition = 'transform .52s cubic-bezier(.22,.9,.3,1)', 60);
+  });
+
+})();
+</script>
+</body>
+</html>
